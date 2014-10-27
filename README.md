@@ -6,7 +6,7 @@ A modern client side logging framework
 
 ## How to Use LumberJack
 
-For browserify projects 
+For browserify projects - coming soon
 
 ```javascript
 npm install --save lumberjack
@@ -15,7 +15,7 @@ npm install --save lumberjack
 For the browser
 
 ```html 
-<script src="/js/lumberjack.min.js">
+<script type="text/javascript" src="/js/lumberjack.min.js">
 ```
 
 Once you have LumberJack installed you can use it like this
@@ -24,4 +24,21 @@ Once you have LumberJack installed you can use it like this
 var loggger = lumberjack.logger( "Paul Bunyan" );
 logger.log( "Where is Babe" );
 logger.info( "pulling the tree" );
+```
+### Available Options
+
+```javascript
+{
+    paddingLength               : 15,
+    hue                         : 0,
+    enableBy                    : "localStorage", // options are "query" , "localStorage" , "jsVar"
+    debugKey                    : "debug",
+    logToServer                 : false,
+    serverEndPoint              : "http://localhost:3000/client/log",
+    showStackTraceInJsConsole   : true,
+    buffer                      : 20,
+    logWhenBufferFull           : true,
+    logLevel                    : "error", // options are "log" , "info" , "debug", "warn", "error"
+    colorEnabled                : true
+}
 ```
