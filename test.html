@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="dist/lumberjack.js"></script>
+</head>
+<body>
+
+    <script>
+        debug = false;
+
+        var logger0     = lumberjack.logger( "Test Logger0" );
+        var logger2     = lumberjack.logger( "Test Logger2" );
+        var logger3     = lumberjack.logger( "Test Logger3" );
+        var logger4     = lumberjack.logger( "Test Logger4" );
+        var logger5     = lumberjack.logger( "Test Logger5" );
+
+
+        logger0.debug( "this is a test log" , { "test" : 123 } , { "test" : 123 } );
+        logger3.warn ( "this is a test log" , { "test" : 123 } );
+        logger4.log  ( "this is a test log" , { "test" : 123 } );
+        logger5.info ( "this is a test log" , { "test" : 123 } );
+        logger2.error( "this is a test log" , { "test" : 123 } );
+
+
+
+    </script>
+
+</body>
+</html>
