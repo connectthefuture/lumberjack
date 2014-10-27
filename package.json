@@ -28,9 +28,10 @@
   "homepage": "https://github.com/Citytechinc/lumberjack",
   "dependencies": {
     "browserify": "^6.1.0",
+    "component-ajax": "*",
+    "merge": "^1.2.0",
     "querystring": "^0.2.0",
-    "uglify-js": "^2.4.15",
-    "stacktrace-js" : "^0.6.2",
-    "component-ajax" : "*"
+    "stacktrace-js": "^0.6.2",
+    "uglify-js": "^2.4.15"
   }
 }

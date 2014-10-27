@@ -1,9 +1,8 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.lumberjack=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = require( "./lib" );
 },{"./lib":5}],2:[function(require,module,exports){
-var options     = require( "./options" );
 
-var yieldColor = function( ) {
+var yieldColor = function( options ) {
     var goldenRatio = 0.618033988749895;
     options.hue += goldenRatio;
     options.hue = options.hue % 1;
@@ -11,13 +10,19 @@ var yieldColor = function( ) {
 };
 
 
-var colorSupported = function colorSupported ( ) {
+var colorSupported = function colorSupported ( options ) {
 
     var chrome          = !!window.chrome;
     var firefox         = /firefox/i.test(navigator.userAgent);
     var safari          = /Safari/i.test(navigator.userAgent);
     var firefoxVersion  = null;
     var safariVersion   = null;
+
+    if ( !options.colorEnabled ) {
+
+        return false;
+
+    }
 
     if (firefox) {
         var match = navigator.userAgent.match(/Firefox\/(\d+\.\d+)/);
@@ -40,7 +45,7 @@ var colorSupported = function colorSupported ( ) {
 
 module.exports.yieldColor       = yieldColor;
 module.exports.colorSupported   = colorSupported;
-},{"./options":7}],3:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 module.exports = {
     "log"   : 100,
     "info"  : 200,
@@ -49,11 +54,10 @@ module.exports = {
     "error" : 500
 };
 },{}],4:[function(require,module,exports){
-var options = require( "./options" );
 var qs      = require( "querystring" );
 
 
-var isEnabled = function isEnabled () {
+var clientSideLoggingIsEnabled = function clientSideLoggingIsEnabled ( options ) {
 
     var enableBy    = options.enableBy;
     var isEnabled   = false;
@@ -104,23 +108,34 @@ var isEnabled = function isEnabled () {
 
 
 
-module.exports = isEnabled;
-},{"./options":7,"querystring":11}],5:[function(require,module,exports){
-var options     = require( "./options" );
-var colorizer   = require( "./colorizer" );
-var loggerMap   = {};
+module.exports.clientSideLoggingIsEnabled = clientSideLoggingIsEnabled;
+},{"querystring":11}],5:[function(require,module,exports){
+var loggerOptions       = require( "./options");
+var colorizer           = require( "./colorizer" );
+var merge               = require( "merge" );
+var loggerMap           = {};
 
+var setOptions = function setOptions ( logOptions ){
 
+    loggerOptions = merge( loggerOptions , logOptions );
 
+};
+
+var getOptions = function getOptions (){
+
+    return loggerOptions;
+
+};
 
 var logger = function( loggerName ){
 
+    var options = getOptions();
     var logName = (loggerName.slice(0, options.paddingLength));
         logName = logName + Array( options.paddingLength + 3 - logName.length ).join( " " ) + "|";
 
     // color support
-    var color               = colorizer.yieldColor();
-    options.colorEnabled    = colorizer.colorSupported();
+    var color               = colorizer.yieldColor( options );
+    options.colorEnabled    = colorizer.colorSupported( options );
 
 
     loggerMap[ logName ] = {
@@ -147,10 +162,11 @@ var logger = function( loggerName ){
 
 };
 
-module.exports.options = options;
-module.exports.logger  = logger;
+module.exports.setOptions   = setOptions;
+module.exports.options      = getOptions.apply( );
+module.exports.logger       = logger;
 
-},{"./colorizer":2,"./log":6,"./options":7}],6:[function(require,module,exports){
+},{"./colorizer":2,"./log":6,"./options":7,"merge":14}],6:[function(require,module,exports){
 var logger      = console;
 var bind        = Function.prototype.bind;
 var stackTrace  = require( "stacktrace-js" );
@@ -162,8 +178,6 @@ var log = function( logInfo , type ){
 
     var loggerOptions = logInfo.options;
 
-    enabled();
-
     var _logger = function(){
 
         var trace = stackTrace({e: new Error});
@@ -172,9 +186,11 @@ var log = function( logInfo , type ){
 
         args.push( { stackTrace : trace } );
 
-        toServer( logInfo , type , args );
+        if( loggerOptions.logToServer ){
+            toServer( logInfo , type , args );
+        }
 
-        if( enabled() ){
+        if( enabled.clientSideLoggingIsEnabled( loggerOptions ) ){
             // Log the correct type of log [ "log" , "debug", "warn", "error", "info" ]
             console[ type ].apply( logger , args );
         } else {
@@ -216,8 +232,8 @@ var log = function( logInfo , type ){
 
 module.exports = log;
 
-},{"./enableLogger":4,"./postToServer":8,"stacktrace-js":14}],7:[function(require,module,exports){
-module.exports = options = {
+},{"./enableLogger":4,"./postToServer":8,"stacktrace-js":15}],7:[function(require,module,exports){
+var options = {
     paddingLength               : 15,
     hue                         : 0,
     enableBy                    : "localStorage", // options are "query" , "localStorage" , "jsVar"
@@ -230,9 +246,11 @@ module.exports = options = {
     logLevel                    : "error", // options are "log" , "info" , "debug", "warn", "error"
     colorEnabled                : true
 };
+
+module.exports = options;
+
 },{}],8:[function(require,module,exports){
 var ajax            = require( "component-ajax" );
-var options         = require( "./options" );
 var debugLevelMap   = require( "./debugLevels" );
 var queue           = [];
 var currentLogData  = [];
@@ -266,7 +284,7 @@ var submitLog = function SubmitLog ( logData ) {
 
 };
 
-module.exports = function(  logInfo , type , args  ){
+module.exports = function(  logInfo , type , args , options ){
 
     var argsToBeLogged = args.slice( 2 );
 
@@ -279,7 +297,7 @@ module.exports = function(  logInfo , type , args  ){
 
     };
 
-    logData = JSON.stringify( logData );
+
 
     if( debugLevelMap[ options.logLevel ] <= debugLevelMap[ type ] ) {
 
@@ -321,7 +339,7 @@ module.exports = function(  logInfo , type , args  ){
 
     }
 }
-},{"./debugLevels":3,"./options":7,"component-ajax":12}],9:[function(require,module,exports){
+},{"./debugLevels":3,"component-ajax":12}],9:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -824,6 +842,182 @@ module.exports = function(val){
 }
 
 },{}],14:[function(require,module,exports){
+/*!
+ * @name JavaScript/NodeJS Merge v1.2.0
+ * @author yeikos
+ * @repository https://github.com/yeikos/js.merge
+
+ * Copyright 2014 yeikos - MIT license
+ * https://raw.github.com/yeikos/js.merge/master/LICENSE
+ */
+
+;(function(isNode) {
+
+	/**
+	 * Merge one or more objects 
+	 * @param bool? clone
+	 * @param mixed,... arguments
+	 * @return object
+	 */
+
+	var Public = function(clone) {
+
+		return merge(clone === true, false, arguments);
+
+	}, publicName = 'merge';
+
+	/**
+	 * Merge two or more objects recursively 
+	 * @param bool? clone
+	 * @param mixed,... arguments
+	 * @return object
+	 */
+
+	Public.recursive = function(clone) {
+
+		return merge(clone === true, true, arguments);
+
+	};
+
+	/**
+	 * Clone the input removing any reference
+	 * @param mixed input
+	 * @return mixed
+	 */
+
+	Public.clone = function(input) {
+
+		var output = input,
+			type = typeOf(input),
+			index, size;
+
+		if (type === 'array') {
+
+			output = [];
+			size = input.length;
+
+			for (index=0;index<size;++index)
+
+				output[index] = Public.clone(input[index]);
+
+		} else if (type === 'object') {
+
+			output = {};
+
+			for (index in input)
+
+				output[index] = Public.clone(input[index]);
+
+		}
+
+		return output;
+
+	};
+
+	/**
+	 * Merge two objects recursively
+	 * @param mixed input
+	 * @param mixed extend
+	 * @return mixed
+	 */
+
+	function merge_recursive(base, extend) {
+
+		if (typeOf(base) !== 'object')
+
+			return extend;
+
+		for (var key in extend) {
+
+			if (typeOf(base[key]) === 'object' && typeOf(extend[key]) === 'object') {
+
+				base[key] = merge_recursive(base[key], extend[key]);
+
+			} else {
+
+				base[key] = extend[key];
+
+			}
+
+		}
+
+		return base;
+
+	}
+
+	/**
+	 * Merge two or more objects
+	 * @param bool clone
+	 * @param bool recursive
+	 * @param array argv
+	 * @return object
+	 */
+
+	function merge(clone, recursive, argv) {
+
+		var result = argv[0],
+			size = argv.length;
+
+		if (clone || typeOf(result) !== 'object')
+
+			result = {};
+
+		for (var index=0;index<size;++index) {
+
+			var item = argv[index],
+
+				type = typeOf(item);
+
+			if (type !== 'object') continue;
+
+			for (var key in item) {
+
+				var sitem = clone ? Public.clone(item[key]) : item[key];
+
+				if (recursive) {
+
+					result[key] = merge_recursive(result[key], sitem);
+
+				} else {
+
+					result[key] = sitem;
+
+				}
+
+			}
+
+		}
+
+		return result;
+
+	}
+
+	/**
+	 * Get type of variable
+	 * @param mixed input
+	 * @return string
+	 *
+	 * @see http://jsperf.com/typeofvar
+	 */
+
+	function typeOf(input) {
+
+		return ({}).toString.call(input).slice(8, -1).toLowerCase();
+
+	}
+
+	if (isNode) {
+
+		module.exports = Public;
+
+	} else {
+
+		window[publicName] = Public;
+
+	}
+
+})(typeof module === 'object' && module && typeof module.exports === 'object' && module.exports);
+},{}],15:[function(require,module,exports){
 // Domain Public by Eric Wendelin http://www.eriwen.com/ (2008)
 //                  Luke Smith http://lucassmith.name/ (2008)
 //                  Loic Dachary <loic@dachary.org> (2008)
