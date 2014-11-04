@@ -42,3 +42,14 @@ logger.info( "pulling the tree" );
     colorEnabled                : true
 }
 ```
+
+
+### Inspiration
+
+[andLog](https://github.com/HenrikJoreteg/andlog) by [@henrikjoreteg](http://twitter.com/henrikjoreteg)
+[Bows](https://github.com/HenrikJoreteg/andlog) by [@philip_roberts](http://twitter.com/philip_roberts)
+
+
+### License
+
+MIT

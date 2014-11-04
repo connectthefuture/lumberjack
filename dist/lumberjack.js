@@ -163,7 +163,7 @@ var logger = function( loggerName ){
 };
 
 module.exports.setOptions   = setOptions;
-module.exports.options      = getOptions.apply( );
+module.exports.options      = getOptions.apply();
 module.exports.logger       = logger;
 
 },{"./colorizer":2,"./log":6,"./options":7,"merge":14}],6:[function(require,module,exports){
@@ -240,10 +240,10 @@ var options = {
     debugKey                    : "debug",
     logToServer                 : false,
     serverEndPoint              : "http://localhost:3000/client/log",
-    showStackTraceInJsConsole   : true,
+    showStackTraceInJsConsole   : false,
     buffer                      : 20,
     logWhenBufferFull           : true,
-    logLevel                    : "error", // options are "log" , "info" , "debug", "warn", "error"
+    logLevel                    : "log", // options are "log" , "info" , "debug", "warn", "error"
     colorEnabled                : true
 };
 
