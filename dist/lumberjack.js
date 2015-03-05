@@ -1,3 +1,21 @@
+/** 
+* Lumberjack - A modern client side logger 
+* 
+* Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
+* associated documentation files (the "Software"), to deal in the Software without restriction, including without 
+* limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
+* Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: 
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions 
+* of the Software. 
+
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+* OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+* CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+* 
+**/
+
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.lumberjack=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = require( "./lib" );
 },{"./lib":5}],2:[function(require,module,exports){
@@ -184,7 +202,9 @@ var log = function( logInfo , type ){
 
         var args = Array.prototype.slice.call(arguments);
 
-        args.push( { stackTrace : trace } );
+        if( loggerOptions.showStackTraceInJsConsole ){
+          args.push( { stackTrace : trace } );
+        }
 
         if( loggerOptions.logToServer ){
             toServer( logInfo , type , args );
@@ -1046,8 +1066,8 @@ module.exports = function(val){
      */
     function printStackTrace(options) {
         options = options || {guess: true};
-        var ex = options.e || null, guess = !!options.guess;
-        var p = new printStackTrace.implementation(), result = p.run(ex);
+        var ex = options.e || null, guess = !!options.guess, mode = options.mode || null;
+        var p = new printStackTrace.implementation(), result = p.run(ex, mode);
         return (guess) ? p.guessAnonymousFunctions(result) : result;
     }
 
@@ -1084,6 +1104,10 @@ module.exports = function(val){
          * @return {String} mode of operation for the exception
          */
         mode: function(e) {
+            if (typeof window !== 'undefined' && window.navigator.userAgent.indexOf('PhantomJS') > -1) {
+                return 'phantomjs';
+            }
+
             if (e['arguments'] && e.stack) {
                 return 'chrome';
             }
@@ -1292,6 +1316,24 @@ module.exports = function(val){
                 var match = lineRE.exec(lines[i]);
                 if (match) {
                     result.push(ANON + '()@' + match[2] + ':' + match[1] + ' -- ' + lines[i + 1].replace(/^\s+/, ''));
+                }
+            }
+
+            return result;
+        },
+
+        phantomjs: function(e) {
+            var ANON = '{anonymous}', lineRE = /(\S+) \((\S+)\)/i;
+            var lines = e.stack.split('\n'), result = [];
+
+            for (var i = 1, len = lines.length; i < len; i++) {
+                lines[i] = lines[i].replace(/^\s+at\s+/gm, '');
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    result.push(match[1] + '()@' + match[2]);
+                }
+                else {
+                    result.push(ANON + '()@' + lines[i]);
                 }
             }
 
