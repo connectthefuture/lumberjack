@@ -1,5 +1,5 @@
 {
-  "name": "lumberjack",
+  "name": "lumberjack-logger",
   "version": "0.0.1",
   "description": "a mondern client side logging framework",
   "main": "index.js",
