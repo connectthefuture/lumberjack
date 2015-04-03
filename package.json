@@ -1,37 +1,37 @@
 {
-  "name": "lumberjack-logger",
-  "version": "0.0.1",
-  "description": "a mondern client side logging framework",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "build": "node build.js",
-    "test": "node test.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Citytechinc/lumberjack"
-  },
-  "keywords": [
-    "client-side-logging",
-    "logging",
-    "javascript",
-    "node",
-    "logging",
-    "lumberjack"
-  ],
-  "author": "ICFI - Ben Westrate",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Citytechinc/lumberjack/issues"
-  },
-  "homepage": "https://github.com/Citytechinc/lumberjack",
-  "dependencies": {
-    "browserify": "^6.1.0",
-    "component-ajax": "*",
-    "merge": "^1.2.0",
-    "querystring": "^0.2.0",
-    "stacktrace-js": "^0.6.2",
-    "uglify-js": "^2.4.15"
-  }
+	"name": "lumberjack-logger",
+	"version": "0.0.2",
+	"description": "a mondern client side logging framework",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js",
+		"build": "node build.js",
+		"test": "node test.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Citytechinc/lumberjack"
+	},
+	"keywords": [
+		"client-side-logging",
+		"logging",
+		"javascript",
+		"node",
+		"logging",
+		"lumberjack"
+	],
+	"author": "ICFI - Ben Westrate",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/Citytechinc/lumberjack/issues"
+	},
+	"homepage": "https://github.com/Citytechinc/lumberjack",
+	"dependencies": {
+		"browserify": "^6.1.0",
+		"component-ajax": "*",
+		"merge": "^1.2.0",
+		"querystring": "^0.2.0",
+		"stacktrace-js": "^0.6.2",
+		"uglify-js": "^2.4.15"
+	}
 }
