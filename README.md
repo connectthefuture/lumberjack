@@ -1,4 +1,4 @@
-LumberJack
+LumberJack-Logger
 ===========
 
 A modern client side logging framework 
@@ -9,7 +9,7 @@ A modern client side logging framework
 For browserify projects - coming soon
 
 ```javascript
-npm install --save lumberjack
+npm install --save lumberjack-logger
 ```
 
 For the browser
